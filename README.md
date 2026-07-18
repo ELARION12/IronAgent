@@ -11,7 +11,6 @@
   <br />
   <br />
 </div>
-
 <div align="center">
   <img src="demo.gif" alt="IronAgent Demo" width="700"/>
 </div>
