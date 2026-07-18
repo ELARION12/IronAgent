@@ -1,11 +1,3 @@
-To make a GitHub repository look like a top-tier, trending open-source project, we need to move beyond standard Markdown and use some advanced GitHub formatting tricks.
-
-We can elevate the README by adding a **centered hero section**, **GitHub-native alert blocks**, **feature tables**, and a **Table of Contents**.
-
-Here is the "Premium" version of your README. Copy and paste this exact code block into your GitHub editor.
-
----
-
 ```markdown
 <div align="center">
   <h1>⚙️ IronAgent</h1>
