@@ -39,19 +39,17 @@ Because IronAgent prioritizes raw execution speed and low memory footprints, it 
 ---
 
 ## 🏗️ Deep Dive: The 3-Layer Architecture
-<!-- Image fallback for Mobile/GitHub App -->
+<!-- This image displays by default for everyone (Mobile & Desktop) -->
 <div align="center">
-  <img src="assets/Architecture.Chart.svg" alt="IronAgent Architecture" width="800"/>
+  <img src="assets/your-file-name.svg" alt="IronAgent Architecture" width="800"/>
 </div>
 
----
+<br>
 
-<!-- 2. Desktop-friendly interactive diagram (The Mermaid Code) -->
-<div align="center">
-  <sub><sup>(Interactive diagram for desktop users)</sup></sub>
-</div>
+<!-- This hides the interactive diagram behind a click to clean up the page -->
+<details>
+  <summary><b>View Interactive Architecture (Desktop Recommended)</b></summary>
 
-<!-- Interactive Mermaid diagram for Desktop/Web -->
 ```mermaid
 graph TD
     %% Styling
