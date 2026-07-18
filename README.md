@@ -41,7 +41,7 @@ Because IronAgent prioritizes raw execution speed and low memory footprints, it 
 ## 🏗️ Deep Dive: The 3-Layer Architecture
 <!-- This image displays by default for everyone (Mobile & Desktop) -->
 <div align="center">
-  <img src="assets/your-file-name.svg" alt="IronAgent Architecture" width="800"/>
+  <img src="assets/Architecture_Chart.svg" alt="IronAgent Architecture" width="800"/>
 </div>
 
 <br>
