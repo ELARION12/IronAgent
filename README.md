@@ -12,12 +12,12 @@
   <br />
 </div>
 
+<div align="center">
+  <img src="demo.gif" alt="IronAgent Demo" width="700"/>
+</div>
+
 > [!IMPORTANT]
 > **IronAgent** is an experimental, ultra-lightweight AI orchestrator designed to solve the memory bloat and execution overhead of modern agentic frameworks. By pushing the `Think ➔ Plan ➔ Act` state machine down to the native C/C++ layer, it bypasses standard garbage collection in favor of a custom 32-byte aligned memory arena.
-
-<div align="center">
-  <img src="assets/demo.gif" alt="IronAgent Demo" width="700"/>
-</div>
 
 ## 💡 Why IronAgent? (The Philosophy)
 Modern AI agent frameworks (like LangChain, AutoGen, and CrewAI) are fantastic for prototyping, but they suffer from massive Python and Node.js overhead. When building continuous, long-running agents, memory fragments quickly, and context window pruning (array slicing) becomes an expensive, CPU-blocking operation. 
