@@ -180,5 +180,3 @@ To achieve true bare-metal dominance over LangChain, v1.1 will eliminate the FFI
 * [ ] **Migrate the Hot Loop:** Move the core orchestrator loop entirely into C++. Python will strictly be used for configuration and final output.
 
 ---
-
-Do you want to add a custom terminal output snippet or a placeholder block for a GIF in the Quick Start section to show off what the console looks like when the agent is actually running?
