@@ -181,14 +181,4 @@ To achieve true bare-metal dominance over LangChain, v1.1 will eliminate the FFI
 
 ---
 
----
-
-### What makes this version impressive?
-
-1. **Centered Hero Section:** The title and badges are perfectly aligned in the center, immediately giving it a premium feel.
-2. **`for-the-badge` Styling:** The badges at the top are larger, blockier, and include official logos (Python, C++).
-3. **GitHub Alerts:** The `> [!IMPORTANT]` and `> [!CAUTION]` tags render as beautiful color-coded boxes on GitHub, drawing the eye directly to your architectural reasoning.
-4. **Clean Tables:** The benchmark section now uses a Markdown table, which makes the data comparison sharp and easy to read.
-5. **Interactive TOC & Checklists:** The Table of Contents is inside a clickable `<details>` dropdown to save space, and the roadmap uses actual checkboxes (`- [ ]`).
-
 Do you want to add a custom terminal output snippet or a placeholder block for a GIF in the Quick Start section to show off what the console looks like when the agent is actually running?
