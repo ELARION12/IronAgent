@@ -39,7 +39,12 @@ Because IronAgent prioritizes raw execution speed and low memory footprints, it 
 ---
 
 ## 🏗️ Deep Dive: The 3-Layer Architecture
+<!-- Image fallback for Mobile/GitHub App -->
+<div align="center">
+  <img src="Architecture_Chart.svg" alt="IronAgent Architecture" width="800"/>
+</div>
 
+<!-- Interactive Mermaid diagram for Desktop/Web -->
 ```mermaid
 graph TD
     %% Styling
