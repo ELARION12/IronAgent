@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="cover.svg" alt="IronAgent Banner" width="100%"/>
+  <img src="logo.svg" alt="IronAgent Banner" width="100%"/>
 
   <!-- Badges below the image -->
   <br />
