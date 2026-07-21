@@ -99,11 +99,15 @@ In version 1.0.0, Pybind11 string deep-copying caused a massive hot-loop bottlen
 
 By implementing Python Buffer Protocols (`memoryview`) directly mapping to the C++ arenas and strictly lazy-loading heavy Python network libraries (HTTPx, Pydantic, MCP), IronAgent now thoroughly outclasses standard Python orchestration.
 
+<div align="center">
+
 | Metric | IronAgent (v1.1.0) | LangChain Core (v1.4.9) | Verdict |
-| --- | --- | --- | --- |
+| :--- | :--- | :--- | :--- |
 | **Time-to-Ready (TTFA)** | `57.1 ms` | `216.5 ms` | ⚡ **3.8x Faster** |
 | **Baseline Memory (RSS)** | `14.05 MB` | `34.03 MB` | 🪶 **2.4x Lighter** |
 | **Hot-Loop (50k iters)** | `412,956 ops/sec` | `74,129 ops/sec` | 🚀 **5.5x Faster** |
+
+</div>
 
 *(Benchmarks run on an isolated orchestration hot-loop consisting of 50,000 iterations, excluding network I/O to strictly measure framework overhead. See `benchmarks/` directory).*
 
