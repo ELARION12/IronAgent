@@ -10,7 +10,12 @@ import json
 import sys
 import time
 from dataclasses import dataclass, field
-from typing import Optional, Callable, List, Dict, Any
+from typing import Optional, Callable, List, Dict, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .llm import OllamaClient
+    from .mcp_client import MCPToolBridge
+    from .shared_memory import SharedMemory
 
 from ._coreagent_cpp import (
     Agent        as _CppAgent,
@@ -20,10 +25,6 @@ from ._coreagent_cpp import (
     ToolOutput,
 )
 from . import _coreagent_cpp as cpp
-from .llm import OllamaClient
-from .mcp_client import MCPToolBridge
-from .shared_memory import SharedMemory
-
 from .tools import (
     shell_tool,
     read_file_tool,
@@ -74,27 +75,46 @@ class Agent:
         max_steps:     int  = 10,
         tool_timeout:  int  = 10000,
         load_defaults: bool = True,
+        config:        Optional[AgentConfig] = None,
     ):
-        config                = AgentConfig()
-        config.name           = name
-        config.system_prompt  = system_prompt
-        config.max_tokens     = max_tokens
-        config.num_threads    = num_threads
-        config.max_steps      = max_steps
-        config.tool_timeout   = tool_timeout
+        if config is None:
+            config                = AgentConfig()
+            config.name           = name
+            config.system_prompt  = system_prompt
+            config.max_tokens     = max_tokens
+            config.num_threads    = num_threads
+            config.max_steps      = max_steps
+            config.tool_timeout   = tool_timeout
+            # Permanently default to 1MB to prevent the 50MB baseline RSS
+            config.context_arena_capacity = 1024 * 1024
+            config.context_scratch_capacity = 1024 * 1024
+        else:
+            config.name = name
 
         self._agent = _CppAgent(config)
-        self.llm    = OllamaClient(model="qwen2.5:3b")
+        self._llm   = None  # Lazily instantiated via self.llm property
         self._tool_specs = dict(self.TOOL_SPECS)  # grows as MCP tools register
-        self._mcp_bridges: List[MCPToolBridge] = []
+        self._mcp_bridges: List[Any] = []
         self.inbox: List[AgentMessage] = []  # incoming agent-to-agent messages
         self.workers: Dict[str, "Agent"] = {}       # name -> worker Agent
         self.worker_roles: Dict[str, str] = {}       # name -> role description
-        self.memory: Optional[SharedMemory] = None   # shared team blackboard
+        self.memory: Optional[Any] = None   # shared team blackboard
 
-        #Load built-in Python tools 
+        # Load built-in Python tools 
         if load_defaults:
             self._register_defaults()
+
+    @property
+    def llm(self) -> OllamaClient:
+        """Lazily load and return the OllamaClient instance."""
+        if self._llm is None:
+            from .llm import OllamaClient
+            self._llm = OllamaClient(model="qwen2.5:3b")
+        return self._llm
+
+    @llm.setter
+    def llm(self, value: OllamaClient) -> None:
+        self._llm = value
 
     def _register_defaults(self):
         """Register all built-in Python tools."""
@@ -247,6 +267,7 @@ class Agent:
         Convenience: connect to CoreAgent's own pure-Python filesystem
         MCP server (mcp_filesystem_server.py), scoped to root_dir.
         """
+        from .mcp_client import MCPToolBridge
         server_script = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "mcp_filesystem_server.py"
         )
@@ -356,7 +377,6 @@ class Agent:
                 f"state={self.state_name} "
                 f"tools={len(self.tool_names)}>")
 
-    # --- new method on the Agent class ---
     def run_llm(self, task: str, max_steps: int = 5) -> str:
         """
         Same THINK->PLAN->ACT->REFLECT loop as run(), but Ollama does the

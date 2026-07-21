@@ -123,7 +123,7 @@ void test_tool_registry() {
 void test_context_buffer() {
     printf("\n[TEST] ContextBuffer\n");
 
-    ContextBuffer ctx(200); /* Small limit to test trimming */
+    ContextBuffer ctx(4096, 4096, 200); /* Small limit to test trimming */
 
     ctx.addSystem("You are a helpful agent.");
     ctx.addUser("What is 2 + 2?");
@@ -132,7 +132,7 @@ void test_context_buffer() {
 
     assert(ctx.messageCount() == 4);
 
-    std::string prompt = ctx.buildPrompt();
+    std::string prompt(ctx.buildPrompt());
     assert(prompt.find("SYSTEM") != std::string::npos);
     assert(prompt.find("USER")   != std::string::npos);
     assert(prompt.find("TOOL:calculator") != std::string::npos);

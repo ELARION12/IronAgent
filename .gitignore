@@ -1,1 +1,31 @@
-.aider*
+# Build directories and CMake files
+build/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+_deps/
+
+# Python caches and artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+env/
+
+# Compiled C/C++ objects and libraries
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# Test executables
+tests/test_c_core
+tests/test_cpp_engine
+
+# Scratchpad testing scripts
+test_qwen.py

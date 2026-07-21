@@ -28,6 +28,7 @@ struct ca_thread_pool {
     uint32_t          active_count;    // Workers currently executing
     uint64_t          completed_count; // Total tasks done
     int               shutdown;        // Signal workers to stop
+    int               initialized;        
 };
 
 /* ── Worker thread function ──────────────────────────────── */
@@ -83,22 +84,13 @@ ca_thread_pool_t* ca_pool_create(uint32_t num_threads) {
 
     pool->num_threads = num_threads;
     pool->shutdown    = 0;
+    pool->initialized = 0; /* DO NOT SPAWN THREADS YET */
 
     pthread_mutex_init(&pool->mutex,         NULL);
     pthread_cond_init (&pool->task_available, NULL);
     pthread_cond_init (&pool->all_done,       NULL);
 
-    /* Spawn worker threads */
-    for (uint32_t i = 0; i < num_threads; i++) {
-        if (pthread_create(&pool->threads[i], NULL, worker_fn, pool) != 0) {
-            fprintf(stderr, "[CoreAgent] Failed to create thread %u\n", i);
-            pool->num_threads = i;
-            ca_pool_destroy(pool);
-            return NULL;
-        }
-    }
-
-    printf("[CoreAgent] Thread pool created with %u workers\n", num_threads);
+    printf("[CoreAgent] Thread pool initialized (lazy loading active)\n");
     return pool;
 }
 
@@ -111,8 +103,10 @@ void ca_pool_destroy(ca_thread_pool_t* pool) {
     pthread_cond_broadcast(&pool->task_available);
     pthread_mutex_unlock(&pool->mutex);
 
-    for (uint32_t i = 0; i < pool->num_threads; i++)
-        pthread_join(pool->threads[i], NULL);
+    if (pool->initialized) {
+        for (uint32_t i = 0; i < pool->num_threads; i++)
+            pthread_join(pool->threads[i], NULL);
+    }
 
     pthread_mutex_destroy(&pool->mutex);
     pthread_cond_destroy(&pool->task_available);
@@ -126,6 +120,20 @@ int ca_pool_submit(ca_thread_pool_t* pool, ca_task_fn fn, void* arg) {
     if (!pool || !fn) return -1;
 
     pthread_mutex_lock(&pool->mutex);
+    /* Lazy Thread Spawning + Stack Size Reduction */
+    if (!pool->initialized && !pool->shutdown) {
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        pthread_attr_setstacksize(&attr, 512 * 1024); /* Cut from 8MB to 512KB */
+
+        for (uint32_t i = 0; i < pool->num_threads; i++) {
+            if (pthread_create(&pool->threads[i], &attr, worker_fn, pool) != 0) {
+                fprintf(stderr, "[CoreAgent] Failed to lazy-spawn thread %u\n", i);
+            }
+        }
+        pthread_attr_destroy(&attr);
+        pool->initialized = 1;
+    }
 
     if (pool->queue.count >= CA_POOL_QUEUE_SIZE) {
         fprintf(stderr, "[CoreAgent] Task queue full!\n");

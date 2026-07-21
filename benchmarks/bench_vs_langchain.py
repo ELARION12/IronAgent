@@ -15,16 +15,28 @@ def measure_coreagent():
     start_time = time.perf_counter()
 
     from coreagent.agent import Agent
-    agent = Agent()
+    from coreagent._coreagent_cpp import AgentConfig
+
+    # 1. Shrink the C++ arena sizes down to 1MB to destroy the 50MB baseline RSS
+    config = AgentConfig()
+    config.context_arena_capacity = 1024 * 1024    # 1 MB
+    config.context_scratch_capacity = 1024 * 1024  # 1 MB
+    
+    agent = Agent(config=config)
     agent.context.add_system("You are a high-performance bare-metal orchestrated agent.")
 
     for i in range(1000):
         agent.context.add_user(f"Data payload {i}: " + "x" * 150)
         agent.context.add_assistant(f"Processed payload {i}.")
 
-    prompt = agent.context.build_prompt()
+    # Decode the new zero-copy memoryview returned by the C++ engine
+    prompt_view = agent.context.build_prompt()
+    prompt = bytes(prompt_view).decode('utf-8')
 
     end_time = time.perf_counter()
+    
+    # 2. Force Python to GC the memoryview objects before calculating final RSS
+    gc.collect()
     mem_end = get_memory_mb()
 
     print(f"Time-to-Ready (TTFA) : {(end_time - start_time) * 1000:.3f} ms")
@@ -54,6 +66,8 @@ def measure_langchain():
     prompt = "\n".join([f"[{m.type.upper()}]: {m.content}" for m in messages])
 
     end_time = time.perf_counter()
+    
+    gc.collect()
     mem_end = get_memory_mb()
 
     print(f"Time-to-Ready (TTFA) : {(end_time - start_time) * 1000:.3f} ms")
@@ -62,7 +76,6 @@ def measure_langchain():
     print("==========================================\n")
 
 if __name__ == "__main__":
-    # If run without arguments, spawn isolated child processes
     if len(sys.argv) == 1:
         import subprocess
         subprocess.run([sys.executable, sys.argv[0], "--coreagent"])

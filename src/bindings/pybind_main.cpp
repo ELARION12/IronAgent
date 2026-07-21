@@ -106,7 +106,18 @@ PYBIND11_MODULE(_coreagent_cpp, m) {
         .def("add_user",        &ContextBuffer::addUser)
         .def("add_assistant",   &ContextBuffer::addAssistant)
         .def("add_tool_result", &ContextBuffer::addToolResult)
-        .def("build_prompt",    &ContextBuffer::buildPrompt)
+        /* ── ZERO-COPY BUFFER PROTOCOL START ── */
+        .def("build_prompt", [](ContextBuffer& cb) -> py::memoryview {
+            std::string_view sv = cb.buildPrompt();
+            
+            // Expose the C arena memory directly to Python without copying
+            return py::memoryview::from_memory(
+                const_cast<char*>(sv.data()), 
+                sv.size(), 
+                true // readonly flag prevents Python from corrupting the C arena
+            );
+        })
+        /* ── ZERO-COPY BUFFER PROTOCOL END ── */
         .def("messages",        &ContextBuffer::messages)
         .def("message_count",   &ContextBuffer::messageCount)
         .def("token_count",     &ContextBuffer::tokenCount)
